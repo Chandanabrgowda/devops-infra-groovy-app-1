@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: app-products-infra
-        image: binduko/app-products-infra
+        image: Chandanabrgowda/app-products-infra
         imagePullPolicy: IfNotPresent
         resources:
           limits:

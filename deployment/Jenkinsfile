@@ -2,7 +2,7 @@ node {
 def mvnHome
 
 stage('Prepare') {
-	git url: 'https://github.com/Chandanabrgowda/devops-infra-groovy-app.git', branch: 'master'
+	git url: 'https://github.com/Chandanabrgowda/devops-infra-groovy-app-1.git', branch: 'master'
 	
 	mvnHome = tool 'mvn'
 }
@@ -19,29 +19,48 @@ stage('Build') {
  
  stage('Unit Test') {
 
-	junit '**/target/surefire-reports/TEST-*.xml'
+	junit '*/target/surefire-reports/TEST-.xml'
 	archive 'targer/*.jar' 
 }
 
-stage('Integration Test') {
- if (isUnix()){
+//stage('Docker Build') {
+//if (isUnix()){
  
- sh "'${mvnHome}/bin/mvn' -Dmaven.test.failure.ignore clean verify"
+// sh "'${mvnHome}/bin/mvn' -spring-boot:build-image"
+// } else {
+ //bat(/"${mvnHome}\bin\mvn" -spring-boot:build-image/)
+// }
+ 
+ //}*/
+//stage('Docker Build') {
+//if (isUnix()){
+ 
+ //sh "'${mvnHome}/bin/mvn' docker-compose-up"
+ //} else {
+ //bat(/"${mvnHome}\bin\mvn" docker-compose-up /)
+ //}
+stage('Load Docker Image') {
+if (isUnix()){
+ 
+sh "minikube image load Chandanabrgowda/app-products-infra"
  } else {
- bat(/"${mvnHome}\bin\mvn" -Dmaven.test.failure.ignore clean verify/)
+ bat(/minikube image load Chandanabrgowda/app-products-infra/)
  }
  
- }
+ stage('Kubernetes pod') {
+if (isUnix()){
  
- stage('Docker Build') {
- if (isUnix()){
- 
- sh "'${mvnHome}/bin/mvn' spring-boot:build-image"
+sh "kubectl apply -f k8s/deployment.yml"
  } else {
- bat(/"${mvnHome}\bin\mvn" spring-boot:build-image/)
+ bat("kubectl apply -f k8s/deployment.yml")
+ }
+ stage('Kubernetes Service') {
+if (isUnix()){
+ 
+sh "kubectl apply -f k8s/service.yml"
+ } else {
+ bat("kubectl apply -f k8s/service.yml")
  }
  
- }
-
 
 }
